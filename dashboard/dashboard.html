@@ -7,7 +7,6 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -30,6 +29,117 @@
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: .7; transform: scale(1.2); }
+        }
+        /* Modal & Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: scale(1) translateY(0);
+        }
+        .modal-content {
+            transform: scale(0.95) translateY(10px);
+            transition: transform 0.3s ease;
+        }
+        /* Notification Panel */
+        .notification-panel {
+            position: fixed;
+            top: 64px;
+            right: 20px;
+            width: 380px;
+            max-height: 500px;
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        .notification-panel.visible {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+        /* Scan progress */
+        @keyframes scanProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        .scan-bar {
+            animation: scanProgress 3s ease-in-out forwards;
+        }
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 200;
+            padding: 14px 22px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.success {
+            background: rgba(0, 32, 7, 0.9);
+            border: 1px solid rgba(60, 227, 106, 0.3);
+            color: #3ce36a;
+        }
+        .toast.info {
+            background: rgba(0, 27, 53, 0.9);
+            border: 1px solid rgba(162, 201, 255, 0.3);
+            color: #a2c9ff;
+        }
+        .toast.error {
+            background: rgba(147, 0, 10, 0.3);
+            border: 1px solid rgba(255, 180, 171, 0.3);
+            color: #ffb4ab;
+        }
+        /* Fade in for device rows */
+        .device-row {
+            animation: fadeSlideIn 0.4s ease forwards;
+            opacity: 0;
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Active nav style classes */
+        .nav-active {
+            background-color: #171f33;
+            color: #a2c9ff;
+            border-left: 4px solid #a2c9ff;
+            border-radius: 0 9999px 9999px 0;
+        }
+        .nav-inactive {
+            color: #94a3b8;
+            border-left: 4px solid transparent;
+        }
+        .nav-inactive:hover {
+            background-color: #131b2e;
+            color: white;
         }
     </style>
 <script id="tailwind-config">
@@ -116,33 +226,37 @@
 <p class="text-[10px] uppercase tracking-widest text-slate-500 font-medium">Precision Monitoring</p>
 </div>
 </div>
-<nav class="space-y-1">
-<a class="flex items-center gap-3 px-4 py-3 bg-[#171f33] text-[#a2c9ff] rounded-r-full border-l-4 border-[#a2c9ff] ease-in-out duration-300" href="#">
+<nav id="sideNav" class="space-y-1">
+<a class="nav-link flex items-center gap-3 px-4 py-3 nav-active ease-in-out duration-300" href="#" data-page="dashboard">
 <span class="material-symbols-outlined">dashboard</span>
 <span class="font-headline font-medium">Dashboard</span>
 </a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-[#131b2e] hover:text-white transition-all ease-in-out duration-300" href="#">
+<a class="nav-link flex items-center gap-3 px-4 py-3 nav-inactive transition-all ease-in-out duration-300" href="#" data-page="devices">
 <span class="material-symbols-outlined">router</span>
 <span class="font-headline font-medium">Devices</span>
 </a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-[#131b2e] hover:text-white transition-all ease-in-out duration-300" href="#">
+<a class="nav-link flex items-center gap-3 px-4 py-3 nav-inactive transition-all ease-in-out duration-300" href="#" data-page="network">
 <span class="material-symbols-outlined">hub</span>
 <span class="font-headline font-medium">Network Map</span>
 </a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-[#131b2e] hover:text-white transition-all ease-in-out duration-300" href="#">
+<a class="nav-link flex items-center gap-3 px-4 py-3 nav-inactive transition-all ease-in-out duration-300" href="#" data-page="logs">
 <span class="material-symbols-outlined">terminal</span>
 <span class="font-headline font-medium">Logs</span>
 </a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-[#131b2e] hover:text-white transition-all ease-in-out duration-300" href="#">
+<a class="nav-link flex items-center gap-3 px-4 py-3 nav-inactive transition-all ease-in-out duration-300" href="#" data-page="analytics">
 <span class="material-symbols-outlined">analytics</span>
 <span class="font-headline font-medium">Analytics</span>
 </a>
 </nav>
 </div>
-<div class="mt-auto p-6">
-<button class="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-br from-[#a2c9ff] to-[#1885e2] text-on-primary font-bold rounded-xl hover:shadow-[0_0_20px_rgba(162,201,255,0.3)] transition-all active:scale-95">
+<div class="mt-auto p-6 space-y-3">
+<button id="addDeviceBtn" class="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-br from-[#a2c9ff] to-[#1885e2] text-on-primary font-bold rounded-xl hover:shadow-[0_0_20px_rgba(162,201,255,0.3)] transition-all active:scale-95">
 <span class="material-symbols-outlined">add</span>
 <span class="font-headline text-sm">Add New Device</span>
+</button>
+<button id="logoutBtn" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#131b2e] text-slate-400 font-medium rounded-xl hover:bg-error-container/20 hover:text-error transition-all text-sm">
+<span class="material-symbols-outlined text-lg">logout</span>
+<span class="font-headline text-sm">Logout</span>
 </button>
 </div>
 </aside>
@@ -152,25 +266,25 @@
 <header class="flex justify-between items-center w-full px-8 h-16 z-40 bg-[#0b1326]">
 <div class="flex items-center bg-[#131b2e] rounded-full px-4 py-1.5 w-96 group focus-within:ring-1 ring-[#a2c9ff]/30 transition-all">
 <span class="material-symbols-outlined text-slate-500 group-focus-within:text-[#a2c9ff]">search</span>
-<input class="bg-transparent border-none focus:ring-0 text-sm w-full text-on-surface placeholder:text-slate-500" placeholder="Search devices, IPs, or clusters..." type="text"/>
+<input id="searchInput" class="bg-transparent border-none focus:ring-0 text-sm w-full text-on-surface placeholder:text-slate-500" placeholder="Search devices, IPs, or clusters..." type="text"/>
 </div>
 <div class="flex items-center gap-6">
 <div class="flex items-center gap-4 text-slate-400">
-<button class="hover:text-[#a2c9ff] transition-colors relative">
+<button id="notifBtn" class="hover:text-[#a2c9ff] transition-colors relative">
 <span class="material-symbols-outlined">notifications</span>
-<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-[#0b1326]"></span>
+<span id="notifBadge" class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-[#0b1326]"></span>
 </button>
-<button class="hover:text-[#a2c9ff] transition-colors">
+<button id="settingsBtn" class="hover:text-[#a2c9ff] transition-colors">
 <span class="material-symbols-outlined">settings</span>
 </button>
 </div>
 <div class="h-8 w-[1px] bg-slate-800"></div>
 <div class="flex items-center gap-3">
 <div class="text-right hidden sm:block">
-<p class="text-xs font-bold text-on-surface">Admin User</p>
-<p class="text-[10px] text-slate-500">System Architect</p>
+<p id="userName" class="text-xs font-bold text-on-surface">Admin User</p>
+<p id="userRole" class="text-[10px] text-slate-500">System Architect</p>
 </div>
-<img alt="User profile avatar" class="w-10 h-10 rounded-full border border-[#a2c9ff]/20" data-alt="Close-up portrait of a professional man with short hair and glasses in a dimly lit tech office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfQdGmjP0N8-67YfZbaxN9GVFtiGOyUfafjK_bv19k00_kPCywFqTctxprHlzCxw5WkId3I2UaH-F9F3QCrf6K-qBmUj_xs2DGhwDAc2s4_AcRoFG0tAcJ27NVSeb6S_NYfx7t5rpT7rJ9gInrqpQCgWs3WfXa8_cl0ZK_RA2HxdbdwsRk9Twd5DrS0INqVVSMFG36qL9ccFNQ5ht8aGEdXC7xei36h-0cOJlI2wtCJQ6NF53eVJUH4a2qeiP3x2YsUtLDOWIb2Drm"/>
+<div id="userAvatar" class="w-10 h-10 rounded-full border border-[#a2c9ff]/20 bg-surface-container-high flex items-center justify-center text-primary font-headline font-bold text-sm">A</div>
 </div>
 </div>
 </header>
@@ -185,9 +299,9 @@
 </div>
 <p class="text-xs font-bold text-slate-500 font-label uppercase tracking-widest mb-2">Total Devices</p>
 <div class="flex items-end gap-3">
-<h2 class="text-4xl font-black font-headline text-on-surface">128</h2>
-<span class="text-tertiary text-xs font-bold mb-1 flex items-center gap-1">
-<span class="material-symbols-outlined text-sm">trending_up</span> +4
+<h2 id="totalDevices" class="text-4xl font-black font-headline text-on-surface">0</h2>
+<span id="totalDevicesDelta" class="text-tertiary text-xs font-bold mb-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span> +0
                         </span>
 </div>
 </div>
@@ -195,47 +309,37 @@
 <div class="bg-surface-container-low p-6 rounded-2xl border-l-4 border-tertiary">
 <p class="text-xs font-bold text-slate-500 font-label uppercase tracking-widest mb-2">Online Status</p>
 <div class="flex items-end gap-3">
-<h2 class="text-4xl font-black font-headline text-tertiary">124</h2>
+<h2 id="onlineCount" class="text-4xl font-black font-headline text-tertiary">0</h2>
 <div class="w-3 h-3 bg-tertiary rounded-full heartbeat mb-2 shadow-[0_0_10px_#3ce36a]"></div>
 </div>
 <div class="mt-4 h-1 w-full bg-surface-container rounded-full overflow-hidden">
-<div class="h-full bg-tertiary w-[97%]"></div>
+<div id="onlineBar" class="h-full bg-tertiary transition-all duration-700" style="width:0%"></div>
 </div>
 </div>
 <!-- Offline -->
 <div class="bg-surface-container-low p-6 rounded-2xl border-l-4 border-error">
 <p class="text-xs font-bold text-slate-500 font-label uppercase tracking-widest mb-2">Offline Alerts</p>
 <div class="flex items-end gap-3">
-<h2 class="text-4xl font-black font-headline text-error">04</h2>
+<h2 id="offlineCount" class="text-4xl font-black font-headline text-error">0</h2>
 <span class="text-slate-400 text-xs font-medium mb-1">Critical Priority</span>
 </div>
-<div class="mt-4 flex gap-1">
-<div class="h-1 flex-1 bg-error rounded-full"></div>
-<div class="h-1 flex-1 bg-error rounded-full"></div>
-<div class="h-1 flex-1 bg-error rounded-full"></div>
-<div class="h-1 flex-1 bg-error rounded-full"></div>
+<div id="offlineDots" class="mt-4 flex gap-1">
 </div>
 </div>
 <!-- Avg Latency -->
 <div class="bg-surface-container-low p-6 rounded-2xl">
 <p class="text-xs font-bold text-slate-500 font-label uppercase tracking-widest mb-2">Avg. Network Latency</p>
 <div class="flex items-end gap-3">
-<h2 class="text-4xl font-black font-headline text-primary">14ms</h2>
-<span class="text-tertiary text-xs font-bold mb-1">-2ms</span>
+<h2 id="avgLatency" class="text-4xl font-black font-headline text-primary">0ms</h2>
+<span id="latencyDelta" class="text-tertiary text-xs font-bold mb-1">0ms</span>
 </div>
 <div class="mt-4 flex items-center gap-2">
-<div class="flex-1 h-8 flex items-end gap-0.5">
-<div class="w-full bg-primary/20 h-1/2 rounded-t-sm"></div>
-<div class="w-full bg-primary/30 h-3/4 rounded-t-sm"></div>
-<div class="w-full bg-primary/20 h-1/3 rounded-t-sm"></div>
-<div class="w-full bg-primary/40 h-2/3 rounded-t-sm"></div>
-<div class="w-full bg-primary/60 h-full rounded-t-sm"></div>
-<div class="w-full bg-primary/40 h-1/2 rounded-t-sm"></div>
+<div id="latencyBars" class="flex-1 h-8 flex items-end gap-0.5">
 </div>
 </div>
 </div>
 </section>
-<!-- Device Detailed List (Editorial Style) -->
+<!-- Device Detailed List -->
 <section class="space-y-4">
 <div class="flex items-center justify-between mb-6">
 <div>
@@ -243,8 +347,8 @@
 <p class="text-sm text-slate-500">Real-time status of core network nodes</p>
 </div>
 <div class="flex gap-2">
-<button class="px-4 py-2 bg-surface-container text-xs font-bold uppercase tracking-wider text-[#a2c9ff] rounded-lg">Filter: All</button>
-<button class="px-4 py-2 hover:bg-surface-container text-xs font-bold uppercase tracking-wider text-slate-500 rounded-lg transition-colors">Sort: Status</button>
+<button id="filterBtn" class="px-4 py-2 bg-surface-container text-xs font-bold uppercase tracking-wider text-[#a2c9ff] rounded-lg">Filter: All</button>
+<button id="sortBtn" class="px-4 py-2 hover:bg-surface-container text-xs font-bold uppercase tracking-wider text-slate-500 rounded-lg transition-colors">Sort: Name</button>
 </div>
 </div>
 <!-- List Header (Hidden on Mobile) -->
@@ -254,154 +358,20 @@
 <div class="col-span-2">System Status</div>
 <div class="col-span-3 text-right">Performance Metrics</div>
 </div>
-<!-- Device Row 1 -->
-<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-surface-container-low p-6 md:px-8 rounded-2xl group hover:bg-surface-container transition-colors">
-<div class="col-span-4 flex items-center gap-4">
-<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined">dns</span>
-</div>
-<div>
-<h4 class="font-headline font-bold text-on-surface">Core Router Alpha</h4>
-<p class="text-xs text-slate-500">Primary Gateway - Floor 4</p>
-</div>
-</div>
-<div class="col-span-3">
-<code class="text-xs bg-surface-container-lowest px-2 py-1 rounded text-primary-fixed">192.168.1.1</code>
-</div>
-<div class="col-span-2">
-<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-tertiary-container text-on-tertiary-container text-[10px] font-bold rounded-full uppercase tracking-wider shadow-[inset_0_0_8px_rgba(60,227,106,0.1)]">
-<span class="w-1.5 h-1.5 bg-tertiary rounded-full heartbeat"></span>
-                            Online / Stable
-                        </span>
-</div>
-<div class="col-span-3 flex items-center justify-end gap-4">
-<div class="text-right">
-<p class="text-xl font-headline font-bold text-on-surface">12ms</p>
-<p class="text-[10px] uppercase text-slate-500 tracking-tighter">Latency</p>
-</div>
-<div class="w-24 h-10 flex items-end gap-1">
-<div class="flex-1 bg-tertiary/20 h-4 rounded-t-sm"></div>
-<div class="flex-1 bg-tertiary/20 h-5 rounded-t-sm"></div>
-<div class="flex-1 bg-tertiary/40 h-6 rounded-t-sm"></div>
-<div class="flex-1 bg-tertiary/20 h-4 rounded-t-sm"></div>
-<div class="flex-1 bg-tertiary/60 h-8 rounded-t-sm"></div>
-</div>
-</div>
-</div>
-<!-- Device Row 2 -->
-<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-surface-container-low p-6 md:px-8 rounded-2xl group hover:bg-surface-container transition-colors">
-<div class="col-span-4 flex items-center gap-4">
-<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined">database</span>
-</div>
-<div>
-<h4 class="font-headline font-bold text-on-surface">Database Server 01</h4>
-<p class="text-xs text-slate-500">Main Production Cluster</p>
-</div>
-</div>
-<div class="col-span-3">
-<code class="text-xs bg-surface-container-lowest px-2 py-1 rounded text-primary-fixed">10.0.4.122</code>
-</div>
-<div class="col-span-2">
-<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-tertiary-container text-on-tertiary-container text-[10px] font-bold rounded-full uppercase tracking-wider">
-<span class="w-1.5 h-1.5 bg-tertiary rounded-full heartbeat"></span>
-                            Online / Stable
-                        </span>
-</div>
-<div class="col-span-3 flex items-center justify-end gap-4">
-<div class="text-right">
-<p class="text-xl font-headline font-bold text-on-surface">18ms</p>
-<p class="text-[10px] uppercase text-slate-500 tracking-tighter">Latency</p>
-</div>
-<div class="w-24 h-10 flex items-end gap-1">
-<div class="flex-1 bg-tertiary/20 h-6 rounded-t-sm"></div>
-<div class="flex-1 bg-tertiary/20 h-5 rounded-t-sm"></div>
-<div class="flex-1 bg-tertiary/20 h-7 rounded-t-sm"></div>
-<div class="flex-1 bg-tertiary/20 h-5 rounded-t-sm"></div>
-<div class="flex-1 bg-tertiary/40 h-6 rounded-t-sm"></div>
-</div>
-</div>
-</div>
-<!-- Device Row 3 (Offline) -->
-<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-[#131b2e] p-6 md:px-8 rounded-2xl group relative">
-<div class="absolute inset-0 bg-error/5 rounded-2xl pointer-events-none"></div>
-<div class="col-span-4 flex items-center gap-4">
-<div class="w-12 h-12 rounded-xl bg-error-container/20 flex items-center justify-center text-error">
-<span class="material-symbols-outlined">storage</span>
-</div>
-<div>
-<h4 class="font-headline font-bold text-error">Backup Storage Node</h4>
-<p class="text-xs text-slate-500">Remote Site B</p>
-</div>
-</div>
-<div class="col-span-3">
-<code class="text-xs bg-surface-container-lowest px-2 py-1 rounded text-error/60">172.16.8.45</code>
-</div>
-<div class="col-span-2">
-<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-error-container text-on-error-container text-[10px] font-bold rounded-full uppercase tracking-wider">
-<span class="w-1.5 h-1.5 bg-error rounded-full"></span>
-                            Connection Lost
-                        </span>
-</div>
-<div class="col-span-3 flex items-center justify-end gap-4">
-<div class="text-right">
-<p class="text-xl font-headline font-bold text-error">Timeout</p>
-<p class="text-[10px] uppercase text-slate-500 tracking-tighter">Latency</p>
-</div>
-<div class="w-24 h-10 flex items-end gap-1 opacity-20">
-<div class="flex-1 bg-error h-1 rounded-t-sm"></div>
-<div class="flex-1 bg-error h-1 rounded-t-sm"></div>
-<div class="flex-1 bg-error h-1 rounded-t-sm"></div>
-<div class="flex-1 bg-error h-1 rounded-t-sm"></div>
-<div class="flex-1 bg-error h-1 rounded-t-sm"></div>
-</div>
-</div>
-</div>
-<!-- Device Row 4 -->
-<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-surface-container-low p-6 md:px-8 rounded-2xl group hover:bg-surface-container transition-colors">
-<div class="col-span-4 flex items-center gap-4">
-<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined">cloud_sync</span>
-</div>
-<div>
-<h4 class="font-headline font-bold text-on-surface">API Gateway Pro</h4>
-<p class="text-xs text-slate-500">Global Load Balancer</p>
-</div>
-</div>
-<div class="col-span-3">
-<code class="text-xs bg-surface-container-lowest px-2 py-1 rounded text-primary-fixed">8.8.4.4</code>
-</div>
-<div class="col-span-2">
-<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-tertiary-container text-on-tertiary-container text-[10px] font-bold rounded-full uppercase tracking-wider">
-<span class="w-1.5 h-1.5 bg-tertiary rounded-full heartbeat"></span>
-                            Online / Stable
-                        </span>
-</div>
-<div class="col-span-3 flex items-center justify-end gap-4">
-<div class="text-right">
-<p class="text-xl font-headline font-bold text-on-surface">24ms</p>
-<p class="text-[10px] uppercase text-slate-500 tracking-tighter">Latency</p>
-</div>
-<div class="w-24 h-10 flex items-end gap-1">
-<div class="flex-1 bg-tertiary/40 h-8 rounded-t-sm"></div>
-<div class="flex-1 bg-tertiary/20 h-6 rounded-t-sm"></div>
-<div class="flex-1 bg-tertiary/20 h-7 rounded-t-sm"></div>
-<div class="flex-1 bg-tertiary/60 h-9 rounded-t-sm"></div>
-<div class="flex-1 bg-tertiary/20 h-5 rounded-t-sm"></div>
-</div>
-</div>
+<!-- Device list container - populated by JS -->
+<div id="deviceList" class="space-y-3">
 </div>
 </section>
 <!-- Bottom Action Center (Asymmetric Layout) -->
 <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
 <div class="lg:col-span-2 bg-gradient-to-br from-[#131b2e] to-[#0b1326] p-8 rounded-3xl border border-[#2d3449]/30 flex flex-col md:flex-row justify-between items-center gap-6">
 <div class="text-center md:text-left">
-<h4 class="text-2xl font-headline font-bold mb-2">Network Health is Optimal</h4>
-<p class="text-slate-400 max-w-sm">No significant packet loss detected across 98% of monitored nodes in the last 24 hours.</p>
+<h4 id="healthTitle" class="text-2xl font-headline font-bold mb-2">Network Health is Optimal</h4>
+<p id="healthDesc" class="text-slate-400 max-w-sm">No significant packet loss detected across 98% of monitored nodes in the last 24 hours.</p>
 </div>
 <div class="flex gap-4">
-<button class="px-6 py-3 bg-surface-container-high rounded-xl font-bold font-headline text-sm hover:bg-surface-variant transition-colors">Download Report</button>
-<button class="px-6 py-3 bg-primary text-on-primary rounded-xl font-bold font-headline text-sm hover:shadow-[0_0_20px_rgba(162,201,255,0.4)] transition-all">Deep Scan</button>
+<button id="downloadReportBtn" class="px-6 py-3 bg-surface-container-high rounded-xl font-bold font-headline text-sm hover:bg-surface-variant transition-colors">Download Report</button>
+<button id="deepScanBtn" class="px-6 py-3 bg-primary text-on-primary rounded-xl font-bold font-headline text-sm hover:shadow-[0_0_20px_rgba(162,201,255,0.4)] transition-all">Deep Scan</button>
 </div>
 </div>
 <div class="bg-surface-container-low p-8 rounded-3xl flex flex-col justify-center text-center">
@@ -409,13 +379,13 @@
 <div class="relative w-32 h-32 mx-auto mb-4">
 <svg class="w-full h-full transform -rotate-90">
 <circle class="text-slate-800" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-width="8"></circle>
-<circle class="text-tertiary" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-dasharray="364" stroke-dashoffset="310" stroke-width="8"></circle>
+<circle id="threatCircle" class="text-tertiary" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-dasharray="364" stroke-dashoffset="310" stroke-width="8" style="transition: stroke-dashoffset 1s ease;"></circle>
 </svg>
 <div class="absolute inset-0 flex items-center justify-center">
-<span class="text-2xl font-headline font-black text-on-surface">LOW</span>
+<span id="threatLevel" class="text-2xl font-headline font-black text-on-surface">LOW</span>
 </div>
 </div>
-<p class="text-xs text-slate-400">0 malicious activities flagged today</p>
+<p id="threatDesc" class="text-xs text-slate-400">0 malicious activities flagged today</p>
 </div>
 </section>
 </div>
@@ -423,4 +393,656 @@
 <!-- Overlay Visual Decoration -->
 <div class="fixed top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full -z-10 pointer-events-none"></div>
 <div class="fixed bottom-0 left-64 w-[300px] h-[300px] bg-tertiary/5 blur-[100px] rounded-full -z-10 pointer-events-none"></div>
+
+<!-- Notification Panel -->
+<div id="notifPanel" class="notification-panel bg-surface-container-low border border-[#2d3449]/30 rounded-2xl shadow-2xl overflow-hidden">
+<div class="p-4 border-b border-[#2d3449]/20 flex justify-between items-center">
+<h4 class="font-headline font-bold text-sm">Notifications</h4>
+<button id="clearNotifs" class="text-xs text-slate-500 hover:text-primary transition-colors">Clear All</button>
+</div>
+<div id="notifList" class="max-h-96 overflow-y-auto p-2 space-y-1">
+</div>
+</div>
+
+<!-- Add Device Modal -->
+<div id="addDeviceModal" class="modal-overlay">
+<div class="modal-content bg-surface-container-low border border-[#2d3449]/30 rounded-2xl shadow-2xl w-full max-w-md p-8">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline font-bold text-lg">Add New Device</h3>
+<button id="closeModal" class="text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<form id="addDeviceForm" class="space-y-4">
+<div>
+<label class="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-1 block">Device Name</label>
+<input id="newDeviceName" type="text" required class="w-full bg-surface-container-lowest border-none rounded-lg py-3 px-4 text-on-surface placeholder:text-slate-500 focus:ring-1 focus:ring-primary/50" placeholder="e.g. Firewall Node X"/>
+</div>
+<div>
+<label class="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-1 block">IP Address</label>
+<input id="newDeviceIP" type="text" required class="w-full bg-surface-container-lowest border-none rounded-lg py-3 px-4 text-on-surface placeholder:text-slate-500 focus:ring-1 focus:ring-primary/50" placeholder="e.g. 192.168.1.100"/>
+</div>
+<div>
+<label class="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-1 block">Location</label>
+<input id="newDeviceLocation" type="text" class="w-full bg-surface-container-lowest border-none rounded-lg py-3 px-4 text-on-surface placeholder:text-slate-500 focus:ring-1 focus:ring-primary/50" placeholder="e.g. Floor 3 - Server Room"/>
+</div>
+<div>
+<label class="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-1 block">Type</label>
+<select id="newDeviceType" class="w-full bg-surface-container-lowest border-none rounded-lg py-3 px-4 text-on-surface focus:ring-1 focus:ring-primary/50">
+<option value="dns">Router</option>
+<option value="database">Database</option>
+<option value="storage">Storage</option>
+<option value="cloud_sync">API Gateway</option>
+<option value="security">Firewall</option>
+<option value="memory">Server</option>
+</select>
+</div>
+<button type="submit" class="w-full py-3 bg-gradient-to-br from-[#a2c9ff] to-[#1885e2] text-on-primary font-bold font-headline rounded-xl hover:shadow-[0_0_20px_rgba(162,201,255,0.3)] transition-all active:scale-95 mt-2">
+Add Device
+</button>
+</form>
+</div>
+</div>
+
+<!-- Deep Scan Modal -->
+<div id="scanModal" class="modal-overlay">
+<div class="modal-content bg-surface-container-low border border-[#2d3449]/30 rounded-2xl shadow-2xl w-full max-w-lg p-8 text-center">
+<span class="material-symbols-outlined text-primary text-5xl mb-4">radar</span>
+<h3 class="font-headline font-bold text-xl mb-2">Deep Network Scan</h3>
+<p id="scanStatus" class="text-slate-400 text-sm mb-6">Scanning all network nodes...</p>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden mb-4">
+<div id="scanBar" class="h-full bg-gradient-to-r from-primary to-tertiary rounded-full scan-bar" style="width:0%"></div>
+</div>
+<p id="scanPercent" class="text-xs text-slate-500 font-mono">0%</p>
+<div id="scanResults" class="mt-6 hidden text-left space-y-3">
+</div>
+<button id="closeScan" class="mt-6 px-6 py-2 bg-surface-container-high rounded-lg text-sm font-bold hover:bg-surface-variant transition-colors hidden">Close</button>
+</div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast" class="toast"></div>
+
+<script>
+(function() {
+    // ===== AUTH GUARD =====
+    const session = localStorage.getItem('sentinel_session');
+    let currentUser = null;
+    if (!session) {
+        window.location.href = '../login/loginpage.html';
+        return;
+    }
+    try {
+        currentUser = JSON.parse(session);
+        if (!currentUser.authenticated) {
+            window.location.href = '../login/loginpage.html';
+            return;
+        }
+    } catch(e) {
+        localStorage.removeItem('sentinel_session');
+        window.location.href = '../login/loginpage.html';
+        return;
+    }
+
+    // ===== SET USER INFO =====
+    document.getElementById('userName').textContent = currentUser.name || 'Admin User';
+    document.getElementById('userRole').textContent = currentUser.role || 'System Architect';
+    document.getElementById('userAvatar').textContent = (currentUser.name || 'A').charAt(0).toUpperCase();
+
+    // ===== DEVICE DATA (Simulated Database) =====
+    let devices = [
+        { id: 1, name: 'Core Router Alpha', location: 'Primary Gateway - Floor 4', ip: '192.168.1.1', icon: 'dns', status: 'online', latency: 12 },
+        { id: 2, name: 'Database Server 01', location: 'Main Production Cluster', ip: '10.0.4.122', icon: 'database', status: 'online', latency: 18 },
+        { id: 3, name: 'Backup Storage Node', location: 'Remote Site B', ip: '172.16.8.45', icon: 'storage', status: 'offline', latency: null },
+        { id: 4, name: 'API Gateway Pro', location: 'Global Load Balancer', ip: '8.8.4.4', icon: 'cloud_sync', status: 'online', latency: 24 },
+        { id: 5, name: 'Firewall Edge 01', location: 'Perimeter Defense - DMZ', ip: '10.0.0.1', icon: 'security', status: 'online', latency: 8 },
+        { id: 6, name: 'Auth Server Primary', location: 'Identity Provider - DC1', ip: '10.0.1.50', icon: 'memory', status: 'online', latency: 15 },
+        { id: 7, name: 'CDN Node EU-West', location: 'Content Delivery - Frankfurt', ip: '172.16.200.3', icon: 'dns', status: 'warning', latency: 89 },
+        { id: 8, name: 'Monitoring Probe B2', location: 'Network Analytics - Floor 2', ip: '10.0.5.10', icon: 'cloud_sync', status: 'online', latency: 6 },
+    ];
+    let nextId = 9;
+
+    // Notification data
+    let notifications = [
+        { id: 1, type: 'error', icon: 'error', title: 'Backup Storage Node Offline', desc: 'Connection lost 2 hours ago. Auto-retry failed.', time: '2h ago' },
+        { id: 2, type: 'warning', icon: 'warning', title: 'CDN Node EU-West High Latency', desc: 'Latency spiked to 89ms. Investigating route.', time: '45m ago' },
+        { id: 3, type: 'info', icon: 'info', title: 'Firmware Update Available', desc: 'Core Router Alpha has a pending update v3.2.1.', time: '1h ago' },
+        { id: 4, type: 'success', icon: 'check_circle', title: 'Deep Scan Completed', desc: 'No threats detected in the last full scan.', time: '3h ago' },
+    ];
+
+    // State
+    let currentFilter = 'all'; // all, online, offline, warning
+    let currentSort = 'name'; // name, status, latency
+    let searchQuery = '';
+
+    // ===== DOM REFS =====
+    const $ = id => document.getElementById(id);
+    const deviceListEl = $('deviceList');
+    const searchInput = $('searchInput');
+    const filterBtn = $('filterBtn');
+    const sortBtn = $('sortBtn');
+    const notifBtn = $('notifBtn');
+    const notifPanel = $('notifPanel');
+    const notifList = $('notifList');
+    const notifBadge = $('notifBadge');
+    const addDeviceBtn = $('addDeviceBtn');
+    const addDeviceModal = $('addDeviceModal');
+    const closeModal = $('closeModal');
+    const addDeviceForm = $('addDeviceForm');
+    const logoutBtn = $('logoutBtn');
+    const downloadReportBtn = $('downloadReportBtn');
+    const deepScanBtn = $('deepScanBtn');
+    const scanModal = $('scanModal');
+    const toast = $('toast');
+
+    // ===== RENDER FUNCTIONS =====
+
+    function updateSummaryCards() {
+        const total = devices.length;
+        const online = devices.filter(d => d.status === 'online' || d.status === 'warning').length;
+        const offline = devices.filter(d => d.status === 'offline').length;
+        const onlineDevices = devices.filter(d => d.status === 'online' && d.latency !== null);
+        const avgLat = onlineDevices.length > 0 ? Math.round(onlineDevices.reduce((s,d) => s + d.latency, 0) / onlineDevices.length) : 0;
+
+        $('totalDevices').textContent = total;
+        $('totalDevicesDelta').innerHTML = `<span class="material-symbols-outlined text-sm">trending_up</span> +${Math.floor(Math.random()*3)+1}`;
+        $('onlineCount').textContent = online;
+        $('onlineBar').style.width = total > 0 ? Math.round((online / total) * 100) + '%' : '0%';
+        $('offlineCount').textContent = String(offline).padStart(2, '0');
+
+        // Offline dots
+        const dotsHtml = Array.from({length: offline}, () => '<div class="h-1 flex-1 bg-error rounded-full"></div>').join('');
+        $('offlineDots').innerHTML = dotsHtml || '<div class="h-1 flex-1 bg-surface-container rounded-full"></div>';
+
+        $('avgLatency').textContent = avgLat + 'ms';
+        $('latencyDelta').textContent = (Math.random() > 0.5 ? '-' : '+') + Math.floor(Math.random()*4+1) + 'ms';
+
+        // Latency bars
+        const latBars = Array.from({length: 6}, () => {
+            const h = Math.floor(Math.random()*80+20);
+            const op = Math.floor(Math.random()*40+20);
+            return `<div class="w-full bg-primary/${op} rounded-t-sm" style="height:${h}%"></div>`;
+        }).join('');
+        $('latencyBars').innerHTML = latBars;
+
+        // Health status
+        if (offline === 0) {
+            $('healthTitle').textContent = 'Network Health is Optimal';
+            $('healthDesc').textContent = `No significant packet loss detected across ${Math.round((online/total)*100)}% of monitored nodes in the last 24 hours.`;
+        } else {
+            $('healthTitle').textContent = 'Network Health Needs Attention';
+            $('healthDesc').textContent = `${offline} device(s) offline. Immediate attention required for critical nodes.`;
+        }
+
+        // Threat level
+        const warningDevices = devices.filter(d => d.status === 'warning').length;
+        if (offline > 2 || warningDevices > 2) {
+            $('threatLevel').textContent = 'HIGH';
+            $('threatCircle').classList.remove('text-tertiary');
+            $('threatCircle').classList.add('text-error');
+            $('threatCircle').setAttribute('stroke-dashoffset', '180');
+            $('threatDesc').textContent = `${offline + warningDevices} issues flagged today`;
+        } else if (offline > 0 || warningDevices > 0) {
+            $('threatLevel').textContent = 'MED';
+            $('threatCircle').classList.remove('text-tertiary', 'text-error');
+            $('threatCircle').classList.add('text-primary');
+            $('threatCircle').setAttribute('stroke-dashoffset', '250');
+            $('threatDesc').textContent = `${offline + warningDevices} issue(s) flagged today`;
+        } else {
+            $('threatLevel').textContent = 'LOW';
+            $('threatCircle').classList.remove('text-error', 'text-primary');
+            $('threatCircle').classList.add('text-tertiary');
+            $('threatCircle').setAttribute('stroke-dashoffset', '310');
+            $('threatDesc').textContent = '0 malicious activities flagged today';
+        }
+    }
+
+    function getFilteredDevices() {
+        let filtered = [...devices];
+
+        // Search
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            filtered = filtered.filter(d =>
+                d.name.toLowerCase().includes(q) ||
+                d.ip.toLowerCase().includes(q) ||
+                d.location.toLowerCase().includes(q)
+            );
+        }
+
+        // Filter
+        if (currentFilter !== 'all') {
+            filtered = filtered.filter(d => d.status === currentFilter);
+        }
+
+        // Sort
+        if (currentSort === 'name') {
+            filtered.sort((a,b) => a.name.localeCompare(b.name));
+        } else if (currentSort === 'status') {
+            const order = { offline: 0, warning: 1, online: 2 };
+            filtered.sort((a,b) => order[a.status] - order[b.status]);
+        } else if (currentSort === 'latency') {
+            filtered.sort((a,b) => (a.latency || 9999) - (b.latency || 9999));
+        }
+
+        return filtered;
+    }
+
+    function renderDeviceRow(device, idx) {
+        const isOffline = device.status === 'offline';
+        const isWarning = device.status === 'warning';
+
+        const bgClass = isOffline ? 'bg-[#131b2e] relative' : 'bg-surface-container-low group hover:bg-surface-container';
+        const nameColor = isOffline ? 'text-error' : 'text-on-surface';
+        const iconContainerClass = isOffline
+            ? 'bg-error-container/20 text-error'
+            : isWarning
+                ? 'bg-[#3d2800] text-[#ffb74d]'
+                : 'bg-surface-container-high text-primary group-hover:scale-110';
+        const ipColor = isOffline ? 'text-error/60' : 'text-primary-fixed';
+
+        let statusHtml;
+        if (isOffline) {
+            statusHtml = `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-error-container text-on-error-container text-[10px] font-bold rounded-full uppercase tracking-wider">
+                <span class="w-1.5 h-1.5 bg-error rounded-full"></span>
+                Connection Lost
+            </span>`;
+        } else if (isWarning) {
+            statusHtml = `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#3d2800] text-[#ffb74d] text-[10px] font-bold rounded-full uppercase tracking-wider">
+                <span class="w-1.5 h-1.5 bg-[#ffb74d] rounded-full heartbeat"></span>
+                High Latency
+            </span>`;
+        } else {
+            statusHtml = `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-tertiary-container text-on-tertiary-container text-[10px] font-bold rounded-full uppercase tracking-wider">
+                <span class="w-1.5 h-1.5 bg-tertiary rounded-full heartbeat"></span>
+                Online / Stable
+            </span>`;
+        }
+
+        const latencyText = isOffline ? 'Timeout' : device.latency + 'ms';
+        const latencyColor = isOffline ? 'text-error' : isWarning ? 'text-[#ffb74d]' : 'text-on-surface';
+
+        // Mini bars
+        let barsHtml;
+        if (isOffline) {
+            barsHtml = Array.from({length: 5}, () => '<div class="flex-1 bg-error h-1 rounded-t-sm"></div>').join('');
+            barsHtml = `<div class="w-24 h-10 flex items-end gap-1 opacity-20">${barsHtml}</div>`;
+        } else {
+            const barColor = isWarning ? 'bg-[#ffb74d]' : 'bg-tertiary';
+            barsHtml = Array.from({length: 5}, () => {
+                const h = Math.floor(Math.random()*8+2);
+                const op = Math.floor(Math.random()*40+20);
+                return `<div class="flex-1 ${barColor}/${op} rounded-t-sm" style="height:${h*10}%"></div>`;
+            }).join('');
+            barsHtml = `<div class="w-24 h-10 flex items-end gap-1">${barsHtml}</div>`;
+        }
+
+        return `
+        <div class="device-row grid grid-cols-1 md:grid-cols-12 gap-4 items-center ${bgClass} p-6 md:px-8 rounded-2xl transition-colors" style="animation-delay:${idx * 0.05}s" data-device-id="${device.id}">
+            ${isOffline ? '<div class="absolute inset-0 bg-error/5 rounded-2xl pointer-events-none"></div>' : ''}
+            <div class="col-span-4 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl ${iconContainerClass} flex items-center justify-center transition-transform">
+                    <span class="material-symbols-outlined">${device.icon}</span>
+                </div>
+                <div>
+                    <h4 class="font-headline font-bold ${nameColor}">${device.name}</h4>
+                    <p class="text-xs text-slate-500">${device.location}</p>
+                </div>
+            </div>
+            <div class="col-span-3">
+                <code class="text-xs bg-surface-container-lowest px-2 py-1 rounded ${ipColor}">${device.ip}</code>
+            </div>
+            <div class="col-span-2">
+                ${statusHtml}
+            </div>
+            <div class="col-span-3 flex items-center justify-end gap-4">
+                <div class="text-right">
+                    <p class="text-xl font-headline font-bold ${latencyColor}">${latencyText}</p>
+                    <p class="text-[10px] uppercase text-slate-500 tracking-tighter">Latency</p>
+                </div>
+                ${barsHtml}
+            </div>
+        </div>`;
+    }
+
+    function renderDevices() {
+        const filtered = getFilteredDevices();
+        if (filtered.length === 0) {
+            deviceListEl.innerHTML = `
+                <div class="text-center py-16 text-slate-500">
+                    <span class="material-symbols-outlined text-4xl mb-3 block opacity-30">search_off</span>
+                    <p class="font-headline font-bold">No devices found</p>
+                    <p class="text-sm mt-1">Try adjusting your search or filter.</p>
+                </div>`;
+            return;
+        }
+        deviceListEl.innerHTML = filtered.map((d, i) => renderDeviceRow(d, i)).join('');
+    }
+
+    function renderNotifications() {
+        if (notifications.length === 0) {
+            notifList.innerHTML = `<div class="text-center py-8 text-slate-500 text-sm">No notifications</div>`;
+            notifBadge.style.display = 'none';
+            return;
+        }
+        notifBadge.style.display = 'block';
+        const colors = {
+            error: { bg: 'bg-error-container/20', text: 'text-error' },
+            warning: { bg: 'bg-[#3d2800]/30', text: 'text-[#ffb74d]' },
+            info: { bg: 'bg-primary-container/20', text: 'text-primary' },
+            success: { bg: 'bg-tertiary-container/20', text: 'text-tertiary' }
+        };
+        notifList.innerHTML = notifications.map(n => {
+            const c = colors[n.type] || colors.info;
+            return `
+            <div class="flex gap-3 p-3 rounded-xl hover:bg-surface-container transition-colors cursor-pointer">
+                <div class="w-8 h-8 rounded-lg ${c.bg} flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm ${c.text}">${n.icon}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold text-on-surface">${n.title}</p>
+                    <p class="text-[10px] text-slate-500 mt-0.5 line-clamp-2">${n.desc}</p>
+                </div>
+                <span class="text-[10px] text-slate-600 flex-shrink-0">${n.time}</span>
+            </div>`;
+        }).join('');
+    }
+
+    // ===== TOAST SYSTEM =====
+    function showToast(message, type = 'info') {
+        toast.className = 'toast ' + type;
+        const icons = { success: 'check_circle', info: 'info', error: 'error' };
+        toast.innerHTML = `<span class="material-symbols-outlined text-lg">${icons[type] || 'info'}</span>${message}`;
+        toast.classList.add('visible');
+        setTimeout(() => toast.classList.remove('visible'), 3500);
+    }
+
+    // ===== INITIAL RENDER =====
+    updateSummaryCards();
+    renderDevices();
+    renderNotifications();
+
+    // ===== EVENT LISTENERS =====
+
+    // Search
+    searchInput.addEventListener('input', function() {
+        searchQuery = this.value;
+        renderDevices();
+    });
+
+    // Filter toggle
+    const filterStates = ['all', 'online', 'offline', 'warning'];
+    let filterIndex = 0;
+    filterBtn.addEventListener('click', function() {
+        filterIndex = (filterIndex + 1) % filterStates.length;
+        currentFilter = filterStates[filterIndex];
+        this.textContent = 'Filter: ' + currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1);
+        renderDevices();
+    });
+
+    // Sort toggle
+    const sortStates = ['name', 'status', 'latency'];
+    let sortIndex = 0;
+    sortBtn.addEventListener('click', function() {
+        sortIndex = (sortIndex + 1) % sortStates.length;
+        currentSort = sortStates[sortIndex];
+        this.textContent = 'Sort: ' + currentSort.charAt(0).toUpperCase() + currentSort.slice(1);
+        renderDevices();
+    });
+
+    // Notifications toggle
+    let notifOpen = false;
+    notifBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        notifOpen = !notifOpen;
+        notifPanel.classList.toggle('visible', notifOpen);
+    });
+    document.addEventListener('click', function(e) {
+        if (!notifPanel.contains(e.target) && !notifBtn.contains(e.target)) {
+            notifOpen = false;
+            notifPanel.classList.remove('visible');
+        }
+    });
+    $('clearNotifs').addEventListener('click', function() {
+        notifications = [];
+        renderNotifications();
+        showToast('Notifications cleared', 'success');
+    });
+
+    // Sidebar nav
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.nav-link').forEach(l => {
+                l.classList.remove('nav-active');
+                l.classList.add('nav-inactive');
+            });
+            this.classList.remove('nav-inactive');
+            this.classList.add('nav-active');
+            const page = this.dataset.page;
+            showToast(`Navigated to ${page.charAt(0).toUpperCase() + page.slice(1)}`, 'info');
+        });
+    });
+
+    // Add Device Modal
+    addDeviceBtn.addEventListener('click', () => addDeviceModal.classList.add('visible'));
+    closeModal.addEventListener('click', () => addDeviceModal.classList.remove('visible'));
+    addDeviceModal.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('visible');
+    });
+
+    addDeviceForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = $('newDeviceName').value.trim();
+        const ip = $('newDeviceIP').value.trim();
+        const location = $('newDeviceLocation').value.trim() || 'Unknown Location';
+        const icon = $('newDeviceType').value;
+
+        if (!name || !ip) return;
+
+        // Validate IP format
+        const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+        if (!ipRegex.test(ip)) {
+            showToast('Invalid IP address format', 'error');
+            return;
+        }
+
+        // Check duplicate IP
+        if (devices.find(d => d.ip === ip)) {
+            showToast('A device with this IP already exists', 'error');
+            return;
+        }
+
+        const newDevice = {
+            id: nextId++,
+            name,
+            location,
+            ip,
+            icon,
+            status: 'online',
+            latency: Math.floor(Math.random()*30+5)
+        };
+        devices.push(newDevice);
+
+        // Add notification
+        notifications.unshift({
+            id: Date.now(),
+            type: 'success',
+            icon: 'add_circle',
+            title: `${name} Added`,
+            desc: `New device registered at ${ip}`,
+            time: 'Just now'
+        });
+
+        updateSummaryCards();
+        renderDevices();
+        renderNotifications();
+        addDeviceModal.classList.remove('visible');
+        this.reset();
+        showToast(`${name} added successfully!`, 'success');
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', function() {
+        localStorage.removeItem('sentinel_session');
+        window.location.href = '../login/loginpage.html';
+    });
+
+    // Download Report
+    downloadReportBtn.addEventListener('click', function() {
+        const now = new Date();
+        const report = [
+            '╔══════════════════════════════════════════════╗',
+            '║       SENTINEL WATCH - NETWORK REPORT       ║',
+            '╚══════════════════════════════════════════════╝',
+            '',
+            `Generated: ${now.toLocaleString()}`,
+            `Operator: ${currentUser.name} (${currentUser.role})`,
+            '',
+            '── SUMMARY ──────────────────────────────────',
+            `Total Devices: ${devices.length}`,
+            `Online: ${devices.filter(d => d.status === 'online').length}`,
+            `Warning: ${devices.filter(d => d.status === 'warning').length}`,
+            `Offline: ${devices.filter(d => d.status === 'offline').length}`,
+            '',
+            '── DEVICE STATUS ────────────────────────────',
+            ...devices.map(d => `  [${d.status.toUpperCase().padEnd(7)}] ${d.name.padEnd(25)} ${d.ip.padEnd(16)} ${d.latency ? d.latency + 'ms' : 'TIMEOUT'}`),
+            '',
+            '── END OF REPORT ────────────────────────────',
+        ].join('\n');
+
+        const blob = new Blob([report], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sentinel_report_${now.toISOString().split('T')[0]}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Report downloaded!', 'success');
+    });
+
+    // Deep Scan
+    deepScanBtn.addEventListener('click', function() {
+        scanModal.classList.add('visible');
+        const scanBar = $('scanBar');
+        const scanPercent = $('scanPercent');
+        const scanStatus = $('scanStatus');
+        const scanResults = $('scanResults');
+        const closeScan = $('closeScan');
+
+        // Reset
+        scanBar.style.width = '0%';
+        scanBar.style.animation = 'none';
+        scanPercent.textContent = '0%';
+        scanStatus.textContent = 'Scanning all network nodes...';
+        scanResults.classList.add('hidden');
+        closeScan.classList.add('hidden');
+
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.floor(Math.random()*8+2);
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+
+                scanStatus.textContent = 'Scan Complete!';
+                scanResults.classList.remove('hidden');
+                closeScan.classList.remove('hidden');
+
+                // Generate scan results
+                const threats = Math.floor(Math.random()*2);
+                const vulns = Math.floor(Math.random()*3);
+                scanResults.innerHTML = `
+                    <div class="flex items-center gap-3 p-3 bg-tertiary-container/20 rounded-lg">
+                        <span class="material-symbols-outlined text-tertiary">verified</span>
+                        <span class="text-sm">${devices.length} devices scanned</span>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 ${threats > 0 ? 'bg-error-container/20' : 'bg-tertiary-container/20'} rounded-lg">
+                        <span class="material-symbols-outlined ${threats > 0 ? 'text-error' : 'text-tertiary'}">${threats > 0 ? 'warning' : 'check_circle'}</span>
+                        <span class="text-sm">${threats} threat(s) detected</span>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 ${vulns > 0 ? 'bg-[#3d2800]/30' : 'bg-tertiary-container/20'} rounded-lg">
+                        <span class="material-symbols-outlined ${vulns > 0 ? 'text-[#ffb74d]' : 'text-tertiary'}">${vulns > 0 ? 'bug_report' : 'check_circle'}</span>
+                        <span class="text-sm">${vulns} vulnerability(ies) found</span>
+                    </div>
+                `;
+            }
+            scanBar.style.width = progress + '%';
+            scanPercent.textContent = progress + '%';
+        }, 150);
+    });
+
+    $('closeScan').addEventListener('click', () => scanModal.classList.remove('visible'));
+    scanModal.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('visible');
+    });
+
+    // Settings button
+    $('settingsBtn').addEventListener('click', () => showToast('Settings panel coming soon', 'info'));
+
+    // ===== LIVE DATA SIMULATION =====
+    // Randomly fluctuate latency every 5s
+    setInterval(() => {
+        devices.forEach(d => {
+            if (d.status === 'online') {
+                d.latency = Math.max(3, d.latency + Math.floor(Math.random()*7-3));
+            } else if (d.status === 'warning') {
+                d.latency = Math.max(50, d.latency + Math.floor(Math.random()*20-8));
+            }
+        });
+        updateSummaryCards();
+        renderDevices();
+    }, 5000);
+
+    // Random status change every 30s (simulate real-time)
+    setInterval(() => {
+        const onlineDevices = devices.filter(d => d.status === 'online');
+        if (onlineDevices.length > 2 && Math.random() > 0.7) {
+            const target = onlineDevices[Math.floor(Math.random() * onlineDevices.length)];
+            const newStatus = Math.random() > 0.5 ? 'warning' : 'offline';
+            target.status = newStatus;
+            if (newStatus === 'offline') target.latency = null;
+            if (newStatus === 'warning') target.latency = Math.floor(Math.random()*50+60);
+
+            notifications.unshift({
+                id: Date.now(),
+                type: newStatus === 'offline' ? 'error' : 'warning',
+                icon: newStatus === 'offline' ? 'error' : 'warning',
+                title: `${target.name} ${newStatus === 'offline' ? 'went Offline' : 'High Latency'}`,
+                desc: newStatus === 'offline' ? 'Connection lost. Auto-retry in progress.' : `Latency spiked to ${target.latency}ms.`,
+                time: 'Just now'
+            });
+
+            updateSummaryCards();
+            renderDevices();
+            renderNotifications();
+            showToast(`${target.name} status changed to ${newStatus.toUpperCase()}`, newStatus === 'offline' ? 'error' : 'info');
+        }
+    }, 30000);
+
+    // Auto-recover offline devices sometimes (every 45s)
+    setInterval(() => {
+        const offlineDevices = devices.filter(d => d.status === 'offline');
+        if (offlineDevices.length > 0 && Math.random() > 0.5) {
+            const target = offlineDevices[Math.floor(Math.random() * offlineDevices.length)];
+            target.status = 'online';
+            target.latency = Math.floor(Math.random()*20+5);
+
+            notifications.unshift({
+                id: Date.now(),
+                type: 'success',
+                icon: 'check_circle',
+                title: `${target.name} Recovered`,
+                desc: `Device is back online with ${target.latency}ms latency.`,
+                time: 'Just now'
+            });
+
+            updateSummaryCards();
+            renderDevices();
+            renderNotifications();
+            showToast(`${target.name} is back online!`, 'success');
+        }
+    }, 45000);
+})();
+</script>
 </body></html>
