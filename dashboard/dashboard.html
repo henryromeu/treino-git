@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinel Watch | Device Monitoring Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        .font-headline {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(45, 52, 73, 0.6);
+            backdrop-filter: blur(20px);
+        }
+        .heartbeat {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .7; transform: scale(1.2); }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface": "#dae2fd",
+                      "on-primary-fixed-variant": "#004881",
+                      "inverse-primary": "#0060a8",
+                      "on-tertiary": "#003912",
+                      "inverse-on-surface": "#283044",
+                      "background": "#0b1326",
+                      "outline": "#8e9196",
+                      "tertiary-container": "#002007",
+                      "surface-bright": "#31394d",
+                      "on-primary-container": "#1885e2",
+                      "surface-container-high": "#222a3d",
+                      "primary-fixed": "#d3e4ff",
+                      "surface-variant": "#2d3449",
+                      "on-secondary-fixed-variant": "#304a55",
+                      "error": "#ffb4ab",
+                      "on-background": "#dae2fd",
+                      "on-tertiary-fixed-variant": "#00531e",
+                      "on-error": "#690005",
+                      "secondary-fixed": "#cbe7f5",
+                      "on-primary-fixed": "#001c38",
+                      "surface-container-lowest": "#060e20",
+                      "tertiary-fixed-dim": "#3ce36a",
+                      "surface-tint": "#a2c9ff",
+                      "surface-container-low": "#131b2e",
+                      "on-primary": "#00315b",
+                      "on-tertiary-fixed": "#002108",
+                      "tertiary-fixed": "#69ff87",
+                      "on-secondary": "#19343e",
+                      "surface-container": "#171f33",
+                      "primary-fixed-dim": "#a2c9ff",
+                      "primary-container": "#001b35",
+                      "on-tertiary-container": "#00973d",
+                      "outline-variant": "#44474c",
+                      "tertiary": "#3ce36a",
+                      "on-surface-variant": "#c4c6cc",
+                      "secondary": "#afcbd8",
+                      "surface-dim": "#0b1326",
+                      "secondary-fixed-dim": "#afcbd8",
+                      "on-secondary-fixed": "#021f29",
+                      "on-error-container": "#ffdad6",
+                      "surface-container-highest": "#2d3449",
+                      "secondary-container": "#334d58",
+                      "error-container": "#93000a",
+                      "on-secondary-container": "#a1bdca",
+                      "primary": "#a2c9ff",
+                      "inverse-surface": "#dae2fd",
+                      "surface": "#0b1326"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": ["Space Grotesk"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+      </script>
+</head>
+<body class="flex min-h-screen">
+<!-- SideNavBar Component -->
+<aside class="fixed left-0 top-0 h-full flex flex-col z-50 bg-[#0b1326] w-64 border-r border-[#2d3449]/15">
+<div class="p-6">
+<div class="flex items-center gap-3 mb-10">
+<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-on-primary-container flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div>
+<h1 class="text-2xl font-black text-[#a2c9ff] font-headline tracking-tighter">Sentinel</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-medium">Precision Monitoring</p>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 bg-[#171f33] text-[#a2c9ff] rounded-r-full border-l-4 border-[#a2c9ff] ease-in-out duration-300" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-headline font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-[#131b2e] hover:text-white transition-all ease-in-out duration-300" href="#">
+<span class="material-symbols-outlined">router</span>
+<span class="font-headline font-medium">Devices</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-[#131b2e] hover:text-white transition-all ease-in-out duration-300" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-headline font-medium">Network Map</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-[#131b2e] hover:text-white transition-all ease-in-out duration-300" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-headline font-medium">Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-[#131b2e] hover:text-white transition-all ease-in-out duration-300" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-headline font-medium">Analytics</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-6">
+<button class="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-br from-[#a2c9ff] to-[#1885e2] text-on-primary font-bold rounded-xl hover:shadow-[0_0_20px_rgba(162,201,255,0.3)] transition-all active:scale-95">
+<span class="material-symbols-outlined">add</span>
+<span class="font-headline text-sm">Add New Device</span>
+</button>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 ml-64 min-h-screen flex flex-col">
+<!-- TopNavBar Component -->
+<header class="flex justify-between items-center w-full px-8 h-16 z-40 bg-[#0b1326]">
+<div class="flex items-center bg-[#131b2e] rounded-full px-4 py-1.5 w-96 group focus-within:ring-1 ring-[#a2c9ff]/30 transition-all">
+<span class="material-symbols-outlined text-slate-500 group-focus-within:text-[#a2c9ff]">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full text-on-surface placeholder:text-slate-500" placeholder="Search devices, IPs, or clusters..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-slate-400">
+<button class="hover:text-[#a2c9ff] transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-[#0b1326]"></span>
+</button>
+<button class="hover:text-[#a2c9ff] transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-slate-800"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-bold text-on-surface">Admin User</p>
+<p class="text-[10px] text-slate-500">System Architect</p>
+</div>
+<img alt="User profile avatar" class="w-10 h-10 rounded-full border border-[#a2c9ff]/20" data-alt="Close-up portrait of a professional man with short hair and glasses in a dimly lit tech office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfQdGmjP0N8-67YfZbaxN9GVFtiGOyUfafjK_bv19k00_kPCywFqTctxprHlzCxw5WkId3I2UaH-F9F3QCrf6K-qBmUj_xs2DGhwDAc2s4_AcRoFG0tAcJ27NVSeb6S_NYfx7t5rpT7rJ9gInrqpQCgWs3WfXa8_cl0ZK_RA2HxdbdwsRk9Twd5DrS0INqVVSMFG36qL9ccFNQ5ht8aGEdXC7xei36h-0cOJlI2wtCJQ6NF53eVJUH4a2qeiP3x2YsUtLDOWIb2Drm"/>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-8 space-y-8 max-w-7xl mx-auto w-full">
+<!-- Summary Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<!-- Total Devices -->
+<div class="bg-surface-container-low p-6 rounded-2xl relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-8xl">router</span>
+</div>
+<p class="text-xs font-bold text-slate-500 font-label uppercase tracking-widest mb-2">Total Devices</p>
+<div class="flex items-end gap-3">
+<h2 class="text-4xl font-black font-headline text-on-surface">128</h2>
+<span class="text-tertiary text-xs font-bold mb-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span> +4
+                        </span>
+</div>
+</div>
+<!-- Online -->
+<div class="bg-surface-container-low p-6 rounded-2xl border-l-4 border-tertiary">
+<p class="text-xs font-bold text-slate-500 font-label uppercase tracking-widest mb-2">Online Status</p>
+<div class="flex items-end gap-3">
+<h2 class="text-4xl font-black font-headline text-tertiary">124</h2>
+<div class="w-3 h-3 bg-tertiary rounded-full heartbeat mb-2 shadow-[0_0_10px_#3ce36a]"></div>
+</div>
+<div class="mt-4 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[97%]"></div>
+</div>
+</div>
+<!-- Offline -->
+<div class="bg-surface-container-low p-6 rounded-2xl border-l-4 border-error">
+<p class="text-xs font-bold text-slate-500 font-label uppercase tracking-widest mb-2">Offline Alerts</p>
+<div class="flex items-end gap-3">
+<h2 class="text-4xl font-black font-headline text-error">04</h2>
+<span class="text-slate-400 text-xs font-medium mb-1">Critical Priority</span>
+</div>
+<div class="mt-4 flex gap-1">
+<div class="h-1 flex-1 bg-error rounded-full"></div>
+<div class="h-1 flex-1 bg-error rounded-full"></div>
+<div class="h-1 flex-1 bg-error rounded-full"></div>
+<div class="h-1 flex-1 bg-error rounded-full"></div>
+</div>
+</div>
+<!-- Avg Latency -->
+<div class="bg-surface-container-low p-6 rounded-2xl">
+<p class="text-xs font-bold text-slate-500 font-label uppercase tracking-widest mb-2">Avg. Network Latency</p>
+<div class="flex items-end gap-3">
+<h2 class="text-4xl font-black font-headline text-primary">14ms</h2>
+<span class="text-tertiary text-xs font-bold mb-1">-2ms</span>
+</div>
+<div class="mt-4 flex items-center gap-2">
+<div class="flex-1 h-8 flex items-end gap-0.5">
+<div class="w-full bg-primary/20 h-1/2 rounded-t-sm"></div>
+<div class="w-full bg-primary/30 h-3/4 rounded-t-sm"></div>
+<div class="w-full bg-primary/20 h-1/3 rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-2/3 rounded-t-sm"></div>
+<div class="w-full bg-primary/60 h-full rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-1/2 rounded-t-sm"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Device Detailed List (Editorial Style) -->
+<section class="space-y-4">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h3 class="text-xl font-bold font-headline text-on-surface">Critical Infrastructure</h3>
+<p class="text-sm text-slate-500">Real-time status of core network nodes</p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-surface-container text-xs font-bold uppercase tracking-wider text-[#a2c9ff] rounded-lg">Filter: All</button>
+<button class="px-4 py-2 hover:bg-surface-container text-xs font-bold uppercase tracking-wider text-slate-500 rounded-lg transition-colors">Sort: Status</button>
+</div>
+</div>
+<!-- List Header (Hidden on Mobile) -->
+<div class="hidden md:grid grid-cols-12 gap-4 px-8 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
+<div class="col-span-4">Device Identity</div>
+<div class="col-span-3">Network Address</div>
+<div class="col-span-2">System Status</div>
+<div class="col-span-3 text-right">Performance Metrics</div>
+</div>
+<!-- Device Row 1 -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-surface-container-low p-6 md:px-8 rounded-2xl group hover:bg-surface-container transition-colors">
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">dns</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface">Core Router Alpha</h4>
+<p class="text-xs text-slate-500">Primary Gateway - Floor 4</p>
+</div>
+</div>
+<div class="col-span-3">
+<code class="text-xs bg-surface-container-lowest px-2 py-1 rounded text-primary-fixed">192.168.1.1</code>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-tertiary-container text-on-tertiary-container text-[10px] font-bold rounded-full uppercase tracking-wider shadow-[inset_0_0_8px_rgba(60,227,106,0.1)]">
+<span class="w-1.5 h-1.5 bg-tertiary rounded-full heartbeat"></span>
+                            Online / Stable
+                        </span>
+</div>
+<div class="col-span-3 flex items-center justify-end gap-4">
+<div class="text-right">
+<p class="text-xl font-headline font-bold text-on-surface">12ms</p>
+<p class="text-[10px] uppercase text-slate-500 tracking-tighter">Latency</p>
+</div>
+<div class="w-24 h-10 flex items-end gap-1">
+<div class="flex-1 bg-tertiary/20 h-4 rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary/20 h-5 rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary/40 h-6 rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary/20 h-4 rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary/60 h-8 rounded-t-sm"></div>
+</div>
+</div>
+</div>
+<!-- Device Row 2 -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-surface-container-low p-6 md:px-8 rounded-2xl group hover:bg-surface-container transition-colors">
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">database</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface">Database Server 01</h4>
+<p class="text-xs text-slate-500">Main Production Cluster</p>
+</div>
+</div>
+<div class="col-span-3">
+<code class="text-xs bg-surface-container-lowest px-2 py-1 rounded text-primary-fixed">10.0.4.122</code>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-tertiary-container text-on-tertiary-container text-[10px] font-bold rounded-full uppercase tracking-wider">
+<span class="w-1.5 h-1.5 bg-tertiary rounded-full heartbeat"></span>
+                            Online / Stable
+                        </span>
+</div>
+<div class="col-span-3 flex items-center justify-end gap-4">
+<div class="text-right">
+<p class="text-xl font-headline font-bold text-on-surface">18ms</p>
+<p class="text-[10px] uppercase text-slate-500 tracking-tighter">Latency</p>
+</div>
+<div class="w-24 h-10 flex items-end gap-1">
+<div class="flex-1 bg-tertiary/20 h-6 rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary/20 h-5 rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary/20 h-7 rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary/20 h-5 rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary/40 h-6 rounded-t-sm"></div>
+</div>
+</div>
+</div>
+<!-- Device Row 3 (Offline) -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-[#131b2e] p-6 md:px-8 rounded-2xl group relative">
+<div class="absolute inset-0 bg-error/5 rounded-2xl pointer-events-none"></div>
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-error-container/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined">storage</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-error">Backup Storage Node</h4>
+<p class="text-xs text-slate-500">Remote Site B</p>
+</div>
+</div>
+<div class="col-span-3">
+<code class="text-xs bg-surface-container-lowest px-2 py-1 rounded text-error/60">172.16.8.45</code>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-error-container text-on-error-container text-[10px] font-bold rounded-full uppercase tracking-wider">
+<span class="w-1.5 h-1.5 bg-error rounded-full"></span>
+                            Connection Lost
+                        </span>
+</div>
+<div class="col-span-3 flex items-center justify-end gap-4">
+<div class="text-right">
+<p class="text-xl font-headline font-bold text-error">Timeout</p>
+<p class="text-[10px] uppercase text-slate-500 tracking-tighter">Latency</p>
+</div>
+<div class="w-24 h-10 flex items-end gap-1 opacity-20">
+<div class="flex-1 bg-error h-1 rounded-t-sm"></div>
+<div class="flex-1 bg-error h-1 rounded-t-sm"></div>
+<div class="flex-1 bg-error h-1 rounded-t-sm"></div>
+<div class="flex-1 bg-error h-1 rounded-t-sm"></div>
+<div class="flex-1 bg-error h-1 rounded-t-sm"></div>
+</div>
+</div>
+</div>
+<!-- Device Row 4 -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-surface-container-low p-6 md:px-8 rounded-2xl group hover:bg-surface-container transition-colors">
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">cloud_sync</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface">API Gateway Pro</h4>
+<p class="text-xs text-slate-500">Global Load Balancer</p>
+</div>
+</div>
+<div class="col-span-3">
+<code class="text-xs bg-surface-container-lowest px-2 py-1 rounded text-primary-fixed">8.8.4.4</code>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-tertiary-container text-on-tertiary-container text-[10px] font-bold rounded-full uppercase tracking-wider">
+<span class="w-1.5 h-1.5 bg-tertiary rounded-full heartbeat"></span>
+                            Online / Stable
+                        </span>
+</div>
+<div class="col-span-3 flex items-center justify-end gap-4">
+<div class="text-right">
+<p class="text-xl font-headline font-bold text-on-surface">24ms</p>
+<p class="text-[10px] uppercase text-slate-500 tracking-tighter">Latency</p>
+</div>
+<div class="w-24 h-10 flex items-end gap-1">
+<div class="flex-1 bg-tertiary/40 h-8 rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary/20 h-6 rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary/20 h-7 rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary/60 h-9 rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary/20 h-5 rounded-t-sm"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Action Center (Asymmetric Layout) -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
+<div class="lg:col-span-2 bg-gradient-to-br from-[#131b2e] to-[#0b1326] p-8 rounded-3xl border border-[#2d3449]/30 flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="text-center md:text-left">
+<h4 class="text-2xl font-headline font-bold mb-2">Network Health is Optimal</h4>
+<p class="text-slate-400 max-w-sm">No significant packet loss detected across 98% of monitored nodes in the last 24 hours.</p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-3 bg-surface-container-high rounded-xl font-bold font-headline text-sm hover:bg-surface-variant transition-colors">Download Report</button>
+<button class="px-6 py-3 bg-primary text-on-primary rounded-xl font-bold font-headline text-sm hover:shadow-[0_0_20px_rgba(162,201,255,0.4)] transition-all">Deep Scan</button>
+</div>
+</div>
+<div class="bg-surface-container-low p-8 rounded-3xl flex flex-col justify-center text-center">
+<p class="text-slate-500 uppercase tracking-widest font-black text-[10px] mb-4">Current Threat Level</p>
+<div class="relative w-32 h-32 mx-auto mb-4">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-slate-800" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-tertiary" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-dasharray="364" stroke-dashoffset="310" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="text-2xl font-headline font-black text-on-surface">LOW</span>
+</div>
+</div>
+<p class="text-xs text-slate-400">0 malicious activities flagged today</p>
+</div>
+</section>
+</div>
+</main>
+<!-- Overlay Visual Decoration -->
+<div class="fixed top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full -z-10 pointer-events-none"></div>
+<div class="fixed bottom-0 left-64 w-[300px] h-[300px] bg-tertiary/5 blur-[100px] rounded-full -z-10 pointer-events-none"></div>
+</body></html>
