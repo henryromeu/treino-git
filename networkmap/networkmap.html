@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Network Map | Sentinel Watch</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .node-pulse-online {
+            box-shadow: 0 0 15px rgba(60, 227, 106, 0.4);
+        }
+        .node-pulse-offline {
+            box-shadow: 0 0 15px rgba(255, 180, 171, 0.4);
+        }
+        .grid-bg {
+            background-image: radial-gradient(circle at 1px 1px, rgba(45, 52, 73, 0.15) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "secondary-fixed-dim": "#afcbd8",
+                "on-background": "#dae2fd",
+                "error-container": "#93000a",
+                "outline": "#8e9196",
+                "inverse-on-surface": "#283044",
+                "on-secondary-container": "#a1bdca",
+                "background": "#0b1326",
+                "secondary": "#afcbd8",
+                "surface-container-highest": "#2d3449",
+                "secondary-fixed": "#cbe7f5",
+                "on-surface": "#dae2fd",
+                "primary-fixed-dim": "#a2c9ff",
+                "on-primary": "#00315b",
+                "primary-container": "#001b35",
+                "on-surface-variant": "#c4c6cc",
+                "surface-container-high": "#222a3d",
+                "surface": "#0b1326",
+                "on-secondary": "#19343e",
+                "tertiary": "#3ce36a",
+                "error": "#ffb4ab",
+                "surface-tint": "#a2c9ff",
+                "tertiary-fixed-dim": "#3ce36a",
+                "tertiary-container": "#002007",
+                "surface-variant": "#2d3449",
+                "primary": "#a2c9ff",
+                "surface-container": "#171f33",
+                "surface-bright": "#31394d",
+                "surface-container-lowest": "#060e20",
+                "on-primary-fixed": "#001c38",
+                "on-error": "#690005",
+                "on-tertiary-container": "#00973d",
+                "inverse-surface": "#dae2fd",
+                "on-secondary-fixed": "#021f29",
+                "surface-container-low": "#131b2e",
+                "secondary-container": "#334d58",
+                "tertiary-fixed": "#69ff87",
+                "primary-fixed": "#d3e4ff",
+                "on-secondary-fixed-variant": "#304a55",
+                "inverse-primary": "#0060a8",
+                "outline-variant": "#44474c",
+                "on-tertiary-fixed-variant": "#00531e",
+                "on-primary-container": "#1885e2",
+                "on-tertiary": "#003912",
+                "on-error-container": "#ffdad6",
+                "surface-dim": "#0b1326",
+                "on-primary-fixed-variant": "#004881",
+                "on-tertiary-fixed": "#002108"
+              },
+              "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+              },
+              "fontFamily": {
+                "headline": ["Space Grotesk"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary/30">
+<!-- SideNavBar (Execution from JSON) -->
+<aside class="fixed left-0 top-0 h-full flex flex-col z-50 bg-[#0b1326] w-64 border-r border-[#2d3449]/15">
+<div class="p-6">
+<h1 class="text-2xl font-black text-[#a2c9ff] font-headline">Sentinel</h1>
+<p class="text-xs text-slate-400 font-headline uppercase tracking-widest mt-1">Precision Monitoring</p>
+</div>
+<nav class="flex-1 mt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-[#131b2e] hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-[#131b2e] hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="router">router</span>
+<span class="font-label font-medium">Devices</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-[#171f33] text-[#a2c9ff] rounded-r-full border-l-4 border-[#a2c9ff]" href="#">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+<span class="font-label font-bold">Network Map</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-[#131b2e] hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="font-label font-medium">Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-[#131b2e] hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label font-medium">Analytics</span>
+</a>
+</nav>
+<div class="p-6">
+<button class="w-full py-3 bg-surface-container-high text-[#a2c9ff] rounded-xl font-label font-bold text-sm hover:bg-surface-variant transition-colors border border-primary/10">
+                Add New Device
+            </button>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="ml-64 min-h-screen flex flex-col">
+<!-- TopNavBar (Execution from JSON) -->
+<header class="flex justify-between items-center w-full px-6 h-16 z-40 bg-[#0b1326] sticky top-0">
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" data-icon="search">search</span>
+<input class="bg-[#131b2e] border-none rounded-full py-1.5 pl-10 pr-4 text-sm text-on-surface-variant focus:ring-1 focus:ring-primary w-64" placeholder="Search nodes..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<button class="text-slate-400 hover:text-[#a2c9ff] transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-slate-400 hover:text-[#a2c9ff] transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-primary/20">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="Professional male headshot with neutral expression and soft studio lighting on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAywemOvuu0biZqdAENPImHBVIwOdYrVu0_20TaN0_fHif90HoG3_Brbmn351LvHZWd9VpFOQtwkTH0kiq6oY35UdGH6OPyB-h-Pmnigb9B16P5gdaGtYk0ndxufO6kfB3K3rfyUbg-vdvgNDPhtuL-hDlpS8VH4T3N6HkCaTXIjyV7ELevoejBCamdatAYJ3kVcy2AVYQu9qpokRA1eKfd8YGJN_e125Y9GQehz0EGg3duVvNUrXTYA2yMp2huHvfuovYu7S5yRxhs"/>
+</div>
+</div>
+</header>
+<!-- Network Canvas Section -->
+<section class="flex-1 relative overflow-hidden bg-[#0b1326] grid-bg">
+<!-- SVG Connectivity Layer (Simulated Lines) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none opacity-40">
+<defs>
+<lineargradient id="flow-gradient" x1="0%" x2="100%" y1="0%" y2="0%">
+<stop offset="0%" stop-color="#a2c9ff" stop-opacity="0"></stop>
+<stop offset="50%" stop-color="#a2c9ff" stop-opacity="1"></stop>
+<stop offset="100%" stop-color="#a2c9ff" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Central Lines -->
+<line stroke="#a2c9ff" stroke-dasharray="4 4" stroke-width="1.5" x1="50%" x2="35%" y1="50%" y2="30%"></line>
+<line stroke="#a2c9ff" stroke-dasharray="4 4" stroke-width="1.5" x1="50%" x2="65%" y1="50%" y2="30%"></line>
+<line stroke="#ffb4ab" stroke-dasharray="4 4" stroke-width="1.5" x1="50%" x2="75%" y1="50%" y2="60%"></line>
+<line stroke="#a2c9ff" stroke-dasharray="4 4" stroke-width="1.5" x1="50%" x2="25%" y1="50%" y2="60%"></line>
+<line stroke="#a2c9ff" stroke-dasharray="4 4" stroke-width="1.5" x1="50%" x2="50%" y1="50%" y2="80%"></line>
+</svg>
+<!-- Topology Nodes -->
+<div class="absolute inset-0 flex items-center justify-center">
+<!-- Central Node: Primary Gateway -->
+<div class="relative z-20 group">
+<div class="w-24 h-24 rounded-full bg-primary-container border-2 border-primary flex items-center justify-center shadow-[0_0_40px_rgba(162,201,255,0.3)] cursor-pointer group-hover:scale-105 transition-transform duration-300">
+<span class="material-symbols-outlined text-4xl text-primary" data-icon="dns">dns</span>
+</div>
+<div class="absolute -bottom-10 left-1/2 -translate-x-1/2 text-center whitespace-nowrap">
+<span class="font-headline font-bold text-on-background text-lg">Primary Gateway</span>
+<div class="flex items-center justify-center gap-1.5 mt-1">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="text-[10px] text-tertiary font-bold tracking-widest uppercase">Operational</span>
+</div>
+</div>
+</div>
+<!-- Node: API Gateway -->
+<div class="absolute top-[20%] left-[30%] group">
+<div class="w-14 h-14 rounded-full bg-surface-container border border-primary/40 flex items-center justify-center node-pulse-online cursor-pointer">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="api">api</span>
+</div>
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-container-highest p-3 rounded-xl border border-outline-variant shadow-2xl z-30 pointer-events-none">
+<p class="font-headline font-bold text-sm text-primary">API_GW_01</p>
+<p class="font-body text-[10px] text-slate-400">IP: 10.0.4.1</p>
+<p class="font-body text-[10px] text-tertiary">Latency: 12ms</p>
+</div>
+</div>
+<!-- Node: Load Balancer -->
+<div class="absolute top-[20%] right-[30%] group">
+<div class="w-14 h-14 rounded-full bg-surface-container border border-primary/40 flex items-center justify-center node-pulse-online cursor-pointer">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="alt_route">alt_route</span>
+</div>
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-container-highest p-3 rounded-xl border border-outline-variant shadow-2xl z-30 pointer-events-none">
+<p class="font-headline font-bold text-sm text-primary">LB_NORTH</p>
+<p class="font-body text-[10px] text-slate-400">IP: 10.0.1.5</p>
+<p class="font-body text-[10px] text-tertiary">Latency: 8ms</p>
+</div>
+</div>
+<!-- Node: Backup Storage (Offline) -->
+<div class="absolute bottom-[30%] right-[20%] group">
+<div class="w-14 h-14 rounded-full bg-surface-container border border-error/40 flex items-center justify-center node-pulse-offline cursor-pointer">
+<span class="material-symbols-outlined text-error text-xl" data-icon="database">database</span>
+</div>
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-container-highest p-3 rounded-xl border border-error-container shadow-2xl z-30 pointer-events-none">
+<p class="font-headline font-bold text-sm text-error">STORAGE_BK_09</p>
+<p class="font-body text-[10px] text-slate-400">IP: 192.168.1.110</p>
+<p class="font-body text-[10px] text-error">Status: Unreachable</p>
+</div>
+</div>
+<!-- Node: Main Compute -->
+<div class="absolute bottom-[30%] left-[20%] group">
+<div class="w-14 h-14 rounded-full bg-surface-container border border-primary/40 flex items-center justify-center node-pulse-online cursor-pointer">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="memory">memory</span>
+</div>
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-container-highest p-3 rounded-xl border border-outline-variant shadow-2xl z-30 pointer-events-none">
+<p class="font-headline font-bold text-sm text-primary">COMPUTE_CLUSTER</p>
+<p class="font-body text-[10px] text-slate-400">IP: 10.0.8.12</p>
+<p class="font-body text-[10px] text-tertiary">Latency: 24ms</p>
+</div>
+</div>
+<!-- Node: Security Layer -->
+<div class="absolute bottom-[10%] left-1/2 -translate-x-1/2 group">
+<div class="w-14 h-14 rounded-full bg-surface-container border border-primary/40 flex items-center justify-center node-pulse-online cursor-pointer">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="shield">shield</span>
+</div>
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-container-highest p-3 rounded-xl border border-outline-variant shadow-2xl z-30 pointer-events-none">
+<p class="font-headline font-bold text-sm text-primary">WALL_SENTINEL</p>
+<p class="font-body text-[10px] text-slate-400">IP: 10.0.0.1</p>
+<p class="font-body text-[10px] text-tertiary">Threats: 0</p>
+</div>
+</div>
+</div>
+<!-- UI Overlay: Floating Legend -->
+<div class="absolute bottom-8 right-8 bg-[#171f33]/80 backdrop-blur-md p-4 rounded-xl border border-outline-variant/15 w-48">
+<h3 class="font-headline font-bold text-xs text-on-surface uppercase tracking-wider mb-3">Map Legend</h3>
+<div class="space-y-2">
+<div class="flex items-center gap-3">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary shadow-[0_0_8px_rgba(60,227,106,0.6)]"></span>
+<span class="text-[11px] font-label text-slate-300">Healthy Node</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="w-2.5 h-2.5 rounded-full bg-error shadow-[0_0_8px_rgba(255,180,171,0.6)]"></span>
+<span class="text-[11px] font-label text-slate-300">Connection Error</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container border border-primary"></span>
+<span class="text-[11px] font-label text-slate-300">Network Core</span>
+</div>
+<div class="flex items-center gap-3 mt-2 pt-2 border-t border-outline-variant/10">
+<span class="material-symbols-outlined text-xs text-slate-400" data-icon="settings_ethernet">settings_ethernet</span>
+<span class="text-[11px] font-label text-slate-400">Data Pathway</span>
+</div>
+</div>
+</div>
+<!-- UI Overlay: Zoom/Pan Controls -->
+<div class="absolute bottom-8 left-8 flex flex-col gap-2">
+<div class="flex flex-col bg-[#171f33]/80 backdrop-blur-md rounded-lg border border-outline-variant/15 overflow-hidden">
+<button class="p-2.5 hover:bg-surface-variant transition-colors text-primary border-b border-outline-variant/10">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+</button>
+<button class="p-2.5 hover:bg-surface-variant transition-colors text-primary border-b border-outline-variant/10">
+<span class="material-symbols-outlined text-lg" data-icon="remove">remove</span>
+</button>
+<button class="p-2.5 hover:bg-surface-variant transition-colors text-primary">
+<span class="material-symbols-outlined text-lg" data-icon="my_location">my_location</span>
+</button>
+</div>
+<div class="bg-[#171f33]/80 backdrop-blur-md p-2.5 rounded-lg border border-outline-variant/15 text-primary flex items-center justify-center cursor-move">
+<span class="material-symbols-outlined text-lg" data-icon="pan_tool">pan_tool</span>
+</div>
+</div>
+<!-- Live Status Ticker (Asymmetric layout) -->
+<div class="absolute top-8 right-8 bg-[#131b2e]/60 backdrop-blur-sm border-l-4 border-primary px-4 py-3 rounded-r-lg max-w-xs">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="info">info</span>
+<span class="text-[10px] font-headline font-bold text-primary tracking-widest uppercase">Live Activity</span>
+</div>
+<div class="space-y-2">
+<p class="text-[11px] text-slate-300 leading-tight">
+<span class="text-primary font-bold">14:22:01</span> Packet loss detected in <span class="text-error font-medium">Backup Storage</span> link. Initiating reroute.
+                    </p>
+<p class="text-[11px] text-slate-300 leading-tight">
+<span class="text-primary font-bold">14:21:45</span> Gateway latency normalized at <span class="text-tertiary font-medium">12ms</span>.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Contextual Stats Footer (Tonal Architecture) -->
+<footer class="h-20 bg-surface-container-low border-t border-outline-variant/10 flex items-center justify-between px-10">
+<div class="flex gap-12">
+<div>
+<p class="text-[10px] font-headline font-bold text-slate-500 uppercase tracking-widest mb-1">Total Nodes</p>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-headline font-bold text-on-surface">24</span>
+<span class="text-[10px] text-tertiary font-bold">+2 New</span>
+</div>
+</div>
+<div>
+<p class="text-[10px] font-headline font-bold text-slate-500 uppercase tracking-widest mb-1">Network Load</p>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-headline font-bold text-on-surface">42%</span>
+<span class="text-[10px] text-primary font-bold">Stable</span>
+</div>
+</div>
+<div>
+<p class="text-[10px] font-headline font-bold text-slate-500 uppercase tracking-widest mb-1">Critical Alerts</p>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-headline font-bold text-error">01</span>
+<span class="text-[10px] text-slate-500 font-bold">Active</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[11px] font-headline text-slate-400">Map Version: v2.4.1 (Proprietary)</span>
+<button class="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 px-4 py-2 rounded-lg text-xs font-bold transition-all">
+                    Export Topology
+                </button>
+</div>
+</footer>
+</main>
+</body></html>
