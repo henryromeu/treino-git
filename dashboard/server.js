@@ -22,7 +22,7 @@ function getDeviceDetails(ip) {
 // Helper function to scan ARP table
 function scanNetwork() {
     return new Promise((resolve, reject) => {
-        exec('arp -a', (error, stdout, stderr) => {
+        exec('arp -a', async (error, stdout, stderr) => {
             if (error) {
                 console.warn("Failed to run arp -a", error);
                 return resolve([]);
@@ -32,8 +32,11 @@ function scanNetwork() {
 
             const lines = stdout.split('\n');
             for (const line of lines) {
-                // Look for lines that contain dynamic or static entries, which are usually network devices
-                if (line.includes('dynamic') || line.includes('static')) {
+                // Look for lines that contain dynamic or static entries
+                // Supports both English (dynamic/static) and Portuguese (dinâmico/estático) Windows
+                const lowerLine = line.toLowerCase();
+                if (lowerLine.includes('dynamic') || lowerLine.includes('static') || 
+                    lowerLine.includes('din') || lowerLine.includes('est')) {
                     const match = line.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
                     if (match) {
                         const ip = match[0];
@@ -44,7 +47,15 @@ function scanNetwork() {
                     }
                 }
             }
-            resolve(Array.from(ips));
+            const ipsWithHostnames = await Promise.all(Array.from(ips).map(async ip => {
+                try {
+                    const hostnames = await dns.promises.reverse(ip);
+                    return { ip, hostname: hostnames[0] };
+                } catch {
+                    return { ip, hostname: null };
+                }
+            }));
+            resolve(ipsWithHostnames);
         });
     });
 }
@@ -57,7 +68,7 @@ app.get('/api/devices', async (req, res) => {
         
         console.log(`-> Disparando pings para ${ipsToPing.length} dispositivos...`);
         // Ping all IP addresses asynchronously
-        const pingPromises = ipsToPing.map(ip => {
+        const pingPromises = ipsToPing.map(({ ip, hostname }) => {
             return ping.promise.probe(ip, { timeout: 2 }).then(result => {
                 const details = getDeviceDetails(ip);
                 return {
@@ -65,6 +76,7 @@ app.get('/api/devices', async (req, res) => {
                     description: details.description,
                     icon: details.icon,
                     ip: ip,
+                    hostname: hostname,
                     status: result.alive ? 'ok' : 'offline',
                     latency: result.alive ? result.time : 'Timeout'
                 };
