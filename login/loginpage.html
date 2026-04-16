@@ -92,9 +92,85 @@
         .gradient-button {
             background: linear-gradient(135deg, #a2c9ff 0%, #1885e2 100%);
         }
+        .gradient-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
         .network-pattern {
             background-image: radial-gradient(circle at 2px 2px, rgba(162, 201, 255, 0.05) 1px, transparent 0);
             background-size: 40px 40px;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+            20%, 40%, 60%, 80% { transform: translateX(4px); }
+        }
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0,72,129,0.3);
+            border-top-color: #004881;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        .error-msg {
+            color: #ffb4ab;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 14px;
+            background: rgba(147, 0, 10, 0.15);
+            border: 1px solid rgba(255, 180, 171, 0.15);
+            border-radius: 8px;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: all 0.3s ease;
+        }
+        .error-msg.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 19, 38, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .success-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        @keyframes checkmark {
+            0% { stroke-dashoffset: 50; }
+            100% { stroke-dashoffset: 0; }
+        }
+        .checkmark-circle {
+            stroke-dasharray: 200;
+            stroke-dashoffset: 200;
+            animation: checkmark 0.6s ease forwards 0.2s;
+        }
+        .checkmark-check {
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            animation: checkmark 0.4s ease forwards 0.6s;
+        }
+        .input-error {
+            box-shadow: 0 0 0 1px rgba(255, 180, 171, 0.5) !important;
         }
     </style>
 </head>
@@ -117,7 +193,12 @@
 <div class="bg-surface-container-low rounded-xl p-1">
 <!-- Surface Layer 2: Glass Card -->
 <div class="glass-panel border border-outline-variant/15 rounded-xl p-8 shadow-2xl">
-<form class="space-y-6">
+<form id="loginForm" class="space-y-6" novalidate>
+<!-- Error Message -->
+<div id="errorMsg" class="error-msg">
+<span class="material-symbols-outlined text-sm">error</span>
+<span id="errorText">Invalid credentials</span>
+</div>
 <!-- Email Field -->
 <div class="space-y-2">
 <label class="font-label text-[10px] uppercase tracking-[0.1em] font-bold text-on-surface-variant ml-1" for="email">Email Address</label>
@@ -139,16 +220,17 @@
 <span class="material-symbols-outlined text-outline text-lg transition-colors group-focus-within:text-primary" data-icon="lock">lock</span>
 </div>
 <input class="w-full bg-surface-container-lowest border-none rounded-lg py-4 pl-12 pr-12 text-on-surface placeholder:text-outline/50 focus:ring-1 focus:ring-primary/50 transition-all font-body" id="password" name="password" placeholder="••••••••" required="" type="password"/>
-<button class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-on-surface-variant transition-colors" type="button">
-<span class="material-symbols-outlined text-lg" data-icon="visibility">visibility</span>
+<button id="togglePassword" class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-on-surface-variant transition-colors" type="button">
+<span id="toggleIcon" class="material-symbols-outlined text-lg">visibility</span>
 </button>
 </div>
 </div>
 <!-- Login Button -->
 <div class="pt-2">
-<button class="gradient-button w-full py-4 px-6 rounded-lg font-headline font-bold text-on-primary-fixed shadow-[0_0_20px_rgba(162,201,255,0.2)] hover:shadow-[0_0_30px_rgba(162,201,255,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group" type="submit">
-<span>Log In</span>
-<span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+<button id="submitBtn" class="gradient-button w-full py-4 px-6 rounded-lg font-headline font-bold text-on-primary-fixed shadow-[0_0_20px_rgba(162,201,255,0.2)] hover:shadow-[0_0_30px_rgba(162,201,255,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group" type="submit">
+<span id="btnText">Log In</span>
+<span id="btnArrow" class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
+<div id="btnSpinner" class="spinner" style="display:none;"></div>
 </button>
 </div>
 </form>
@@ -173,4 +255,183 @@
 <a class="hover:text-primary transition-colors" href="#">Contact Support</a>
 </footer>
 </main>
+
+<!-- Success Overlay -->
+<div id="successOverlay" class="success-overlay">
+<svg width="80" height="80" viewBox="0 0 80 80">
+<circle class="checkmark-circle" cx="40" cy="40" r="36" fill="none" stroke="#3ce36a" stroke-width="3"/>
+<path class="checkmark-check" d="M24 42 L34 52 L56 30" fill="none" stroke="#3ce36a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+<p class="font-headline text-tertiary text-xl font-bold mt-6">Access Granted</p>
+<p class="text-slate-400 text-sm mt-2">Redirecting to dashboard...</p>
+</div>
+
+<script>
+(function() {
+    // ===== AUTH CONFIG =====
+    // Credenciais válidas (simuladas - em produção seria um backend)
+    const VALID_USERS = [
+        { email: 'admin@sentinel.com', password: 'sentinel123', name: 'Admin User', role: 'System Architect' },
+        { email: 'user@sentinel.com', password: 'user123', name: 'Operator', role: 'Network Operator' }
+    ];
+
+    // Se já está logado, redirecionar pro dashboard
+    const session = localStorage.getItem('sentinel_session');
+    if (session) {
+        try {
+            const parsed = JSON.parse(session);
+            if (parsed.authenticated) {
+                window.location.href = '../dashboard/dashboard.html';
+                return;
+            }
+        } catch(e) {
+            localStorage.removeItem('sentinel_session');
+        }
+    }
+
+    // ===== DOM ELEMENTS =====
+    const form = document.getElementById('loginForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('togglePassword');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnArrow = document.getElementById('btnArrow');
+    const btnSpinner = document.getElementById('btnSpinner');
+    const errorMsg = document.getElementById('errorMsg');
+    const errorText = document.getElementById('errorText');
+    const successOverlay = document.getElementById('successOverlay');
+
+    // ===== PASSWORD VISIBILITY TOGGLE =====
+    toggleBtn.addEventListener('click', function() {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        toggleIcon.textContent = isPassword ? 'visibility_off' : 'visibility';
+    });
+
+    // ===== CLEAR ERRORS ON INPUT =====
+    emailInput.addEventListener('input', clearErrors);
+    passwordInput.addEventListener('input', clearErrors);
+
+    function clearErrors() {
+        errorMsg.classList.remove('visible');
+        emailInput.classList.remove('input-error');
+        passwordInput.classList.remove('input-error');
+    }
+
+    function showError(message) {
+        errorText.textContent = message;
+        errorMsg.classList.add('visible');
+        form.classList.add('shake');
+        setTimeout(() => form.classList.remove('shake'), 500);
+    }
+
+    function setLoading(loading) {
+        submitBtn.disabled = loading;
+        btnText.textContent = loading ? 'Authenticating...' : 'Log In';
+        btnArrow.style.display = loading ? 'none' : '';
+        btnSpinner.style.display = loading ? 'block' : 'none';
+    }
+
+    // ===== FORM SUBMIT =====
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        clearErrors();
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        // Validação de campos vazios
+        if (!email && !password) {
+            showError('Please fill in all fields.');
+            emailInput.classList.add('input-error');
+            passwordInput.classList.add('input-error');
+            emailInput.focus();
+            return;
+        }
+
+        if (!email) {
+            showError('Please enter your email address.');
+            emailInput.classList.add('input-error');
+            emailInput.focus();
+            return;
+        }
+
+        // Validação de formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showError('Please enter a valid email address.');
+            emailInput.classList.add('input-error');
+            emailInput.focus();
+            return;
+        }
+
+        if (!password) {
+            showError('Please enter your password.');
+            passwordInput.classList.add('input-error');
+            passwordInput.focus();
+            return;
+        }
+
+        if (password.length < 6) {
+            showError('Password must be at least 6 characters.');
+            passwordInput.classList.add('input-error');
+            passwordInput.focus();
+            return;
+        }
+
+        // Iniciar loading
+        setLoading(true);
+
+        // Simular delay de autenticação (como se fosse uma API)
+        setTimeout(function() {
+            const user = VALID_USERS.find(u => u.email === email && u.password === password);
+
+            if (user) {
+                // ===== LOGIN SUCESSO =====
+                const sessionData = {
+                    authenticated: true,
+                    email: user.email,
+                    name: user.name,
+                    role: user.role,
+                    loginTime: new Date().toISOString()
+                };
+                localStorage.setItem('sentinel_session', JSON.stringify(sessionData));
+
+                // Mostrar overlay de sucesso
+                successOverlay.classList.add('visible');
+
+                // Redirecionar após animação
+                setTimeout(function() {
+                    window.location.href = '../dashboard/dashboard.html';
+                }, 1800);
+            } else {
+                // ===== LOGIN FALHOU =====
+                setLoading(false);
+
+                // Verificar se o email existe
+                const emailExists = VALID_USERS.find(u => u.email === email);
+                if (emailExists) {
+                    showError('Incorrect password. Please try again.');
+                    passwordInput.classList.add('input-error');
+                    passwordInput.focus();
+                    passwordInput.select();
+                } else {
+                    showError('No account found with this email.');
+                    emailInput.classList.add('input-error');
+                    emailInput.focus();
+                }
+            }
+        }, 1500);
+    });
+
+    // ===== ENTER KEY SUPPORT =====
+    passwordInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            form.dispatchEvent(new Event('submit'));
+        }
+    });
+})();
+</script>
 </body></html>
